@@ -1,0 +1,112 @@
+Aim: Install HBase and use the HBase Data model Store and retrieve data
+
+
+
+set passwordless ssh id start-dfs.sh doesn't work,
+
+ssh-keygen -t rsa -P ""
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+ssh localhost
+
+
+still facing error , then 
+readlink -f $(which java) | sed "s:/bin/java::"
+nano ~/hadoop-1.2.1/conf/hadoop-env.sh
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+source ~/.bashrc
+
+nano ~/hadoop-1.2.1/conf/core-site.xml
+<property>
+  <name>fs.default.name</name>
+  <value>hdfs://localhost:9000</value>
+</property>
+
+nano ~/hadoop-1.2.1/conf/hdfs-site.xml
+<property>
+  <name>dfs.replication</name>
+  <value>1</value>
+</property>
+
+source ~/.bashrc
+
+wget https://downloads.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz
+
+tar -xvzf hadoop-3.3.6.tar.gz
+
+start-dfs.sh
+start-yarn.sh
+
+wget https://archive.apache.org/dist/hbase/2.4.1/hbase-2.4.1-bin.tar.gz
+
+tar -xvf hbase-2.4.1-bin.tar.gz
+
+mv hbase-2.4.1 hbase
+
+nano ~/.bashrc
+Add below code,
+export HBASE_HOME=/home/hadoop/hbase
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export PATH=$PATH:$HBASE_HOME/bin
+
+source ~/.bashrc
+
+nano ~/hbase/conf/hbase-env.sh
+Add below code,
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+
+nano ~/hbase/conf/hbase-site.xml
+Add below code,
+<configuration>
+ <property>
+ <name>hbase.rootdir</name>
+ <value>hdfs://localhost:9000/hbase</value>
+ </property>
+ <property>
+ <name>hbase.cluster.distributed</name>
+ <value>true</value>
+ </property>
+ <property>
+ <name>hbase.zookeeper.quorum</name>
+ <value>localhost</value>
+</property>
+ <property>
+ <name>dfs.replication</name>
+ <value>1</value>
+ </property>
+ <property>
+ <name>hbase.zookeeper.property.clientPort</name>
+ <value>2181</value>
+ </property>
+ <property>
+ <name>hbase.zookeeper.property.dataDir</name>
+ <value>/home/hadoop/hbase/zookeeper</value>
+ </property>
+</configuration>
+
+start-hbase.sh
+
+hbase shell
+
+create 'emp', 'pri_data', 'pro_data'
+
+put 'emp', '1', 'pri_data:name', 'Andy'
+put 'emp', '1', 'pri_data:age', '22'
+put 'emp', '1', 'pro_data:post', 'asst. manager'
+put 'emp', '1', 'pro_data:salary', '40k'
+put 'emp', '2', 'pri_data:name', 'Icarus'
+put 'emp', '2', 'pri_data:age', '22'
+put 'emp', '2', 'pro_data:post', 'manager'
+
+get 'emp', '1'
+get 'emp', '2'
+
+delete 'emp', '1', 'pri_data:city'
+
+put 'emp', '1', 'pri_data:city', 'Delhi'
+
+deleteall 'emp', '1'
+
+scan 'emp'
+
+list
